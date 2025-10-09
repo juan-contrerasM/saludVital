@@ -1,2 +1,8 @@
-# saludVital
-SaludVital es un proyecto desarrollado como parte de la asignatura Ingeniería de Software III, cuyo propósito es poner en práctica los principios de la estructura organizacional DevOps en el ciclo de vida del software.
+<!-- ==========================================================
+     Proyecto: SaludVital
+     Asignatura: Ingeniería de Software III
+     Objetivo: Implementar una estructura organizacional DevOps
+     Descripción:
+     Este archivo define qué elementos no deben ser rastreados
+     por Git para mantener el repositorio limpio, seguro y ordenado.
+     ========================================================== -->
