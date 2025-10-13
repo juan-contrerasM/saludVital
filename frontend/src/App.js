@@ -22,8 +22,9 @@ function App() {
 
       const data = await res.json();
 
-      if (Array.isArray(data)) {
-        setCitas(data);
+      // ✅ Adaptamos al formato real del backend
+      if (Array.isArray(data.resultados)) {
+        setCitas(data.resultados);
       } else {
         console.error("⚠️ Respuesta inesperada del backend:", data);
         setCitas([]);
@@ -52,7 +53,7 @@ function App() {
 
       if (!res.ok) throw new Error("Error al agendar cita");
 
-      await res.json(); // Ignoramos el contenido, solo esperamos la confirmación
+      await res.json();
       alert("✅ Cita agendada con éxito.");
 
       // 🔄 Recargar las citas actualizadas
