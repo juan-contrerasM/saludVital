@@ -1,4 +1,4 @@
-name: CI/CD - VitalApp
+name: CI/CD - SaludVital
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      # === Etapa: Backend ===
+      # === Etapa Backend ===
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
@@ -23,27 +23,23 @@ jobs:
           cd backend
           pip install -r requirements.txt
 
-      - name: Pruebas backend (opcional)
+      # === Etapa Frontend ===
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Construir frontend
         run: |
-          cd backend
-          pytest || echo "Sin pruebas definidas"
+          cd frontend
+          npm install
+          npm run build
 
-      # === Etapa: Frontend (DESACTIVADA por ahora) ===
-      # - name: Configurar Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      #
-      # - name: Instalar dependencias del frontend
-      #   run: |
-      #     cd frontend
-      #     npm install
-      #     npm run build
-
-      # === Construcción Docker (solo backend) ===
-      - name: Build Docker image (backend)
+      # === Construcción Docker ===
+      - name: Build Docker images
         run: |
           docker build -t vital-backend -f docker/Dockerfile.backend .
+          docker build -t vital-frontend -f docker/Dockerfile.frontend .
 
       # === Despliegue en EC2 ===
       - name: Deploy to AWS EC2

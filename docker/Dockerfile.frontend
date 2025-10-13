@@ -1,0 +1,17 @@
+# Etapa 1: Construcción
+FROM node:20-alpine as build
+
+WORKDIR /app
+COPY ./frontend/package*.json ./package.json
+COPY ./frontend/.env ./frontend.env
+RUN npm config set registry https://registry.npmjs.org/
+RUN npm install
+COPY ./frontend ./
+RUN mv ./frontend.env .env
+RUN npm run build
+
+# Etapa 2: Servidor NGINX
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
