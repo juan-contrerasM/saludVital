@@ -1,12 +1,17 @@
+# db/coneccion.py
 from dotenv import load_dotenv
 import os
 import psycopg2
 
-if os.path.exists(".env"):
-    load_dotenv()  # solo carga .env si existe
+def conectar_db():
+    # Cargar variables de entorno si existe .env
+    if os.path.exists(".env"):
+        load_dotenv()
 
-url = os.getenv("DATABASE_URL")
-if not url:
-    raise ValueError("La variable de entorno DATABASE_URL no está definida.")
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        raise ValueError("La variable de entorno DATABASE_URL no está definida.")
 
-conn = psycopg2.connect(url, sslmode="require")
+    # Conectar a la base de datos
+    conn = psycopg2.connect(url, sslmode="require")
+    return conn
