@@ -14,8 +14,10 @@ origins = [
 # CORS para permitir peticiones desde React
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000",
-        "http://127.0.0.1:3000"],  # puerto donde corre tu React
+    allow_origins=[
+        "http://3.17.207.163:5173",  # Frontend en EC2
+        "https://saludvital.vercel.app",  # Ejemplo dominio futuro
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
