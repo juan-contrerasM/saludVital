@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  # --- BACKEND ---
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: vital-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../backend/.env           # ✅ Carga el .env del backend
+    restart: always
+    networks:
+      - vital-network
+
+  # --- FRONTEND ---
+  # ⚠️ Solo se activará cuando exista el proyecto React
+  # frontend:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/Dockerfile.frontend
+  #   container_name: vital-frontend
+  #   ports:
+  #     - "3000:80"
+  #   depends_on:
+  #     - backend
+  #   env_file:
+  #     - ../frontend/.env        # ✅ Carga el .env del frontend
+  #   restart: always
+  #   networks:
+  #     - vital-network
+
+# --- RED COMÚN ENTRE CONTENEDORES ---
+networks:
+  vital-network:
+    driver: bridge

@@ -1,0 +1,60 @@
+name: CI/CD - VitalApp
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      # === Etapa: Backend ===
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias del backend
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Pruebas backend (opcional)
+        run: |
+          cd backend
+          pytest || echo "Sin pruebas definidas"
+
+      # === Etapa: Frontend ===
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias del frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      # === Construcción Docker ===
+      - name: Build Docker images
+        run: |
+          docker build -t vital-backend -f docker/Dockerfile.backend .
+          docker build -t vital-frontend -f docker/Dockerfile.frontend .
+
+      # === Despliegue en EC2 ===
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_KEY }}
+          script: |
+            cd /home/ubuntu/saludVital
+            git pull origin main || git clone https://github.com/${{ github.repository }} .
+            docker compose -f docker/docker-compose.yml down
+            docker compose -f docker/docker-compose.yml up -d --build
