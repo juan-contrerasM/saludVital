@@ -41,7 +41,7 @@ jobs:
           docker build -t vital-backend -f docker/Dockerfile.backend .
           docker build -t vital-frontend -f docker/Dockerfile.frontend .
 
-      # === Despliegue en EC2 ===
+      # === Despliegue en AWS EC2 ===
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -49,7 +49,25 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_KEY }}
           script: |
-            cd /home/ubuntu/saludVital
-            git pull origin main || git clone https://github.com/${{ github.repository }} .
-            docker compose -f docker/docker-compose.yml down
-            docker compose -f docker/docker-compose.yml up -d --build
+            echo "🚀 Desplegando en EC2..."
+
+            # Si el directorio no existe, clonar el repo
+            cd /home/ubuntu/saludVital || git clone https://github.com/${{ github.repository }} saludVital
+            cd saludVital
+
+            # Asegurar que el código esté actualizado
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Crear el archivo .env del backend (solo con la URL)
+            echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > backend/.env
+
+            # Crear el .env del frontend con la URL del backend
+            echo "VITE_API_URL=http://3.17.207.163:8000" > frontend/.env
+
+            # Levantar con Docker Compose
+            cd docker
+            docker compose down
+            docker compose up -d --build
+
+            echo "✅ Despliegue completado correctamente"
