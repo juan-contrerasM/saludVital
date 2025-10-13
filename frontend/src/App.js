@@ -21,6 +21,8 @@ function App() {
       .then((data) => {
         if (Array.isArray(data)) {
           setCitas(data);
+        } else if (data.resultados && Array.isArray(data.resultados)) {
+          setCitas(data.resultados);
         } else {
           console.error("Respuesta inesperada del backend:", data);
           setCitas([]);
@@ -35,13 +37,28 @@ function App() {
   // Enviar nueva cita al backend
   const agregarCita = async (nuevaCita) => {
     try {
+      const pacienteId = "ed029278-59a5-4ea3-aa4c-439787707313"; // Fijo de prueba
+
+      // Formato correcto de hora HH:MM:SS
+      const horaFormateada =
+        nuevaCita.hora.length === 5 ? `${nuevaCita.hora}:00` : nuevaCita.hora;
+
       const res = await fetch(`${BACKEND_URL}/citas/agendar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevaCita),
+        body: JSON.stringify({
+          paciente_id: pacienteId,
+          fecha: nuevaCita.fecha,
+          hora: horaFormateada,
+          motivo: nuevaCita.motivo,
+        }),
       });
 
-      if (!res.ok) throw new Error("Error al agendar cita");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Error backend:", errorText);
+        throw new Error("Error al agendar cita");
+      }
 
       const data = await res.json();
       setCitas((prev) => [...prev, data]);
@@ -53,7 +70,13 @@ function App() {
   };
 
   return (
-    <div style={{ textAlign: "center", fontFamily: "sans-serif", padding: "20px" }}>
+    <div
+      style={{
+        textAlign: "center",
+        fontFamily: "sans-serif",
+        padding: "20px",
+      }}
+    >
       <h1>VitalApp 🏥</h1>
       <AgendarCita onAgendar={agregarCita} />
       <ConsultarCitas citas={citas} />
