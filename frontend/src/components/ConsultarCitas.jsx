@@ -1,11 +1,14 @@
 import React from "react";
 
 function ConsultarCitas({ citas }) {
+  // Verifica que citas sea un array antes de usar .map()
+  const citasValidas = Array.isArray(citas) ? citas : [];
+
   return (
     <div style={{ marginTop: "40px" }}>
       <h2>Citas agendadas</h2>
-      {citas.length === 0 ? (
-        <p>No hay citas disponibles.</p>
+      {citasValidas.length === 0 ? (
+        <p>No hay citas disponibles o ocurrió un error.</p>
       ) : (
         <table
           style={{
@@ -22,7 +25,7 @@ function ConsultarCitas({ citas }) {
             </tr>
           </thead>
           <tbody>
-            {citas.map((cita, i) => (
+            {citasValidas.map((cita, i) => (
               <tr key={i}>
                 <td>{cita.fecha}</td>
                 <td>{cita.hora}</td>

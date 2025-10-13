@@ -7,14 +7,28 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 function App() {
   const [citas, setCitas] = useState([]);
 
-  // Cargar citas del backend
   useEffect(() => {
-    fetch(`${BACKEND_URL}/citas/obtener_resultados`)
-      .then((res) => res.json())
-      .then((data) => setCitas(data))
+    const pacienteId = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID de prueba o simulado
+
+    fetch(`${BACKEND_URL}/citas/resultados/${pacienteId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorMsg = await res.text();
+          throw new Error(`Error ${res.status}: ${errorMsg}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCitas(data);
+        } else {
+          console.error("Respuesta inesperada del backend:", data);
+          setCitas([]);
+        }
+      })
       .catch((err) => {
         console.error("Error cargando citas desde backend:", err);
-        alert("Error cargando citas desde el servidor");
+        alert("⚠️ Error cargando citas desde el servidor");
       });
   }, []);
 
