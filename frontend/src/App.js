@@ -3,32 +3,20 @@ import AgendarCita from "./components/AgendarCitas";
 import ConsultarCitas from "./components/ConsultarCitas";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const PACIENTE_ID = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID de prueba o simulado
+const PACIENTE_ID = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID fijo o simulado
 
 function App() {
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Función para cargar las citas desde el backend
+  // 🔹 Cargar citas desde backend
   const cargarCitas = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${BACKEND_URL}/citas/resultados/${PACIENTE_ID}`);
-
-      if (!res.ok) {
-        const errorMsg = await res.text();
-        throw new Error(`Error ${res.status}: ${errorMsg}`);
-      }
-
+      if (!res.ok) throw new Error(`Error ${res.status}`);
       const data = await res.json();
-
-      // ✅ Adaptamos al formato real del backend
-      if (Array.isArray(data.resultados)) {
-        setCitas(data.resultados);
-      } else {
-        console.error("⚠️ Respuesta inesperada del backend:", data);
-        setCitas([]);
-      }
+      setCitas(Array.isArray(data.resultados) ? data.resultados : []);
     } catch (error) {
       console.error("❌ Error cargando citas:", error);
       alert("Error cargando citas desde el servidor");
@@ -37,26 +25,25 @@ function App() {
     }
   };
 
-  // 🔹 Cargar citas al iniciar la app
   useEffect(() => {
     cargarCitas();
   }, []);
 
-  // 🔹 Enviar nueva cita al backend
+  // 🔹 Enviar nueva cita (agregando el paciente_id)
   const agregarCita = async (nuevaCita) => {
     try {
+      const citaConId = { ...nuevaCita, paciente_id: PACIENTE_ID };
+
       const res = await fetch(`${BACKEND_URL}/citas/agendar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevaCita),
+        body: JSON.stringify(citaConId),
       });
 
       if (!res.ok) throw new Error("Error al agendar cita");
 
       await res.json();
       alert("✅ Cita agendada con éxito.");
-
-      // 🔄 Recargar las citas actualizadas
       await cargarCitas();
     } catch (error) {
       console.error(error);
