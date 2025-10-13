@@ -35,5 +35,5 @@ jobs:
           use-annotations: true
           # Upload Qodana results (SARIF, other artifacts, logs) as an artifact to the job
           upload-result: false
-          # quick-fixes available in Ultimate and Ultimate Plus plans
+          # quick-fixes available in Ultimate and Ultimate Plus plans yuu
           push-fixes: 'none'
