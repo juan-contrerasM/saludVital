@@ -1,14 +1,11 @@
-import React from "react";
-
 function ConsultarCitas({ citas }) {
-  // Verifica que citas sea un array antes de usar .map()
   const citasValidas = Array.isArray(citas) ? citas : [];
 
   return (
     <div style={{ marginTop: "40px" }}>
-      <h2>Citas agendadas</h2>
+      <h2>Resultados de citas</h2>
       {citasValidas.length === 0 ? (
-        <p>No hay citas disponibles o ocurrió un error.</p>
+        <p>No hay resultados disponibles.</p>
       ) : (
         <table
           style={{
@@ -20,16 +17,16 @@ function ConsultarCitas({ citas }) {
           <thead>
             <tr>
               <th>Fecha</th>
-              <th>Hora</th>
-              <th>Motivo</th>
+              <th>Tipo de examen</th>
+              <th>Resultado</th>
             </tr>
           </thead>
           <tbody>
-            {citasValidas.map((cita, i) => (
-              <tr key={i}>
+            {citasValidas.map((cita) => (
+              <tr key={cita.id}>
                 <td>{cita.fecha}</td>
-                <td>{cita.hora}</td>
-                <td>{cita.motivo}</td>
+                <td>{cita.tipo_examen}</td>
+                <td>{cita.resultado}</td>
               </tr>
             ))}
           </tbody>
@@ -38,5 +35,3 @@ function ConsultarCitas({ citas }) {
     </div>
   );
 }
-
-export default ConsultarCitas;

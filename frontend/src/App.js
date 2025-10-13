@@ -3,48 +3,63 @@ import AgendarCita from "./components/AgendarCitas";
 import ConsultarCitas from "./components/ConsultarCitas";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const PACIENTE_ID = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID fijo o simulado
 
 function App() {
   const [citas, setCitas] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  // 🔹 Cargar citas desde backend
-  const cargarCitas = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${BACKEND_URL}/citas/resultados/${PACIENTE_ID}`);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const data = await res.json();
-      setCitas(Array.isArray(data.resultados) ? data.resultados : []);
-    } catch (error) {
-      console.error("❌ Error cargando citas:", error);
-      alert("Error cargando citas desde el servidor");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    cargarCitas();
+    const pacienteId = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID de prueba o simulado
+
+    fetch(`${BACKEND_URL}/citas/resultados/${pacienteId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorMsg = await res.text();
+          throw new Error(`Error ${res.status}: ${errorMsg}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.status === "ok" && Array.isArray(data.resultados)) {
+          setCitas(data.resultados);
+        } else {
+          console.error("Respuesta inesperada del backend:", data);
+          setCitas([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error cargando citas desde backend:", err);
+        alert("⚠️ Error cargando citas desde el servidor");
+      });
   }, []);
 
-  // 🔹 Enviar nueva cita (agregando el paciente_id)
+  // Enviar nueva cita al backend
   const agregarCita = async (nuevaCita) => {
     try {
-      const citaConId = { ...nuevaCita, paciente_id: PACIENTE_ID };
+      const pacienteId = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID fijo
+      const body = { ...nuevaCita, paciente_id: pacienteId };
 
       const res = await fetch(`${BACKEND_URL}/citas/agendar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(citaConId),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) throw new Error("Error al agendar cita");
 
-      await res.json();
-      alert("✅ Cita agendada con éxito.");
-      await cargarCitas();
+      const data = await res.json();
+
+      if (data.Exitoso) {
+        // Recargar resultados desde backend después de agendar
+        const resultadosRes = await fetch(`${BACKEND_URL}/citas/resultados/${pacienteId}`);
+        const resultadosData = await resultadosRes.json();
+        if (resultadosData.status === "ok" && Array.isArray(resultadosData.resultados)) {
+          setCitas(resultadosData.resultados);
+        }
+        alert("✅ Cita agendada con éxito.");
+      } else {
+        console.error("Error en la respuesta al agendar cita:", data);
+        alert("❌ No se pudo agendar la cita correctamente.");
+      }
     } catch (error) {
       console.error(error);
       alert("❌ No se pudo agendar la cita.");
@@ -55,11 +70,7 @@ function App() {
     <div style={{ textAlign: "center", fontFamily: "sans-serif", padding: "20px" }}>
       <h1>VitalApp 🏥</h1>
       <AgendarCita onAgendar={agregarCita} />
-      {loading ? (
-        <p>Cargando citas...</p>
-      ) : (
-        <ConsultarCitas citas={citas} />
-      )}
+      <ConsultarCitas citas={citas} />
     </div>
   );
 }
