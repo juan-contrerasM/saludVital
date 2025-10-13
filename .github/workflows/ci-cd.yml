@@ -63,9 +63,10 @@ jobs:
             echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > backend/.env
 
             # Crear el .env del frontend con la URL del backend
-            echo "VITE_API_URL=http://3.17.207.163:8000" > frontend/.env
+            echo "REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }}" > frontend/.env
+  
 
-            # Levantar con Docker Compose
+  # Levantar con Docker Compose
             cd docker
             docker compose down
             docker compose up -d --build
