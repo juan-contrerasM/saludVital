@@ -8,7 +8,7 @@ from datetime import datetime
 def validar_datos_cita(paciente_id: str, fecha: str, hora: str, motivo: str):
     errores = []
 
-    # Validar paciente_id
+    # Validar paciente_id ghghghghghghghg
     if not paciente_id or not isinstance(paciente_id, str):
         errores.append("El ID del paciente es obligatorio y debe ser un texto válido.")
 
