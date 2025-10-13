@@ -7,7 +7,6 @@ COPY ./frontend/.env ./frontend.env
 RUN npm config set registry https://registry.npmjs.org/
 RUN npm install
 COPY ./frontend ./
-RUN mv ./frontend.env .env
 RUN npm run build
 
 # Etapa 2: Servidor NGINX
