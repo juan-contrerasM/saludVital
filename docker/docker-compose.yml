@@ -16,20 +16,21 @@ services:
       - vital-network
 
   # --- FRONTEND ---
-  frontend:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.frontend
-    container_name: vital-frontend
-    ports:
-      - "5173:80"              # ⚡ Mapea el puerto externo 5173 al interno de NGINX
-    depends_on:
-      - backend
-    env_file:
-      - ../frontend/.env         # ✅ Carga el .env del frontend
-    restart: always
-    networks:
-      - vital-network
+  # ⚠️ Solo se activará cuando exista el proyecto React
+  # frontend:
+  #   build:
+  #     context: ..
+  #     dockerfile: docker/Dockerfile.frontend
+  #   container_name: vital-frontend
+  #   ports:
+  #     - "3000:80"
+  #   depends_on:
+  #     - backend
+  #   env_file:
+  #     - ../frontend/.env        # ✅ Carga el .env del frontend
+  #   restart: always
+  #   networks:
+  #     - vital-network
 
 # --- RED COMÚN ENTRE CONTENEDORES ---
 networks:
