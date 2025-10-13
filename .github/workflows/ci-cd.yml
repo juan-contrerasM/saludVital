@@ -60,7 +60,7 @@ jobs:
             git reset --hard origin/main
 
             # Crear el archivo .env del backend (solo con la URL)
-            echo "SUPABASE_URL=${{ secrets.DATABASE_URL  }}" > backend/.env
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > backend/.env
 
             # Crear el .env del frontend con la URL del backend
             echo "REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }}" > frontend/.env
