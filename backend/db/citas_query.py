@@ -93,3 +93,33 @@ def obtener_datos_paciente(paciente_id):
     finally:
         cur.close()
         conn.close()
+
+
+def obtener_id_correo(correo: str):
+    """
+    Retorna el ID del paciente dado su correo.
+    """
+    try:
+        conn = conectar_db()
+        cur = conn.cursor()
+
+        query = """
+            SELECT id 
+            FROM pacientes
+            WHERE correo = %s;
+        """
+        cur.execute(query, (correo,))
+        result = cur.fetchone()
+
+        if result:
+            return str(result[0])
+        else:
+            return None
+
+    except Exception as e:
+        print(f"❌ Error al obtener ID por correo: {e}")
+        return None
+
+    finally:
+        cur.close()
+        conn.close()
