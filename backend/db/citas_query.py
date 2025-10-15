@@ -7,6 +7,7 @@ from sqlalchemy import text
 import os
 
 
+#Metodo para agendar cita
 def agendar_cita(paciente_id: str, fecha: str, hora: str, motivo: str):
     conn = conectar_db()
     cur = conn.cursor()
@@ -29,7 +30,7 @@ def agendar_cita(paciente_id: str, fecha: str, hora: str, motivo: str):
 
     return nueva_cita
     
-
+#Consulta de resultados médicos
 def obtener_resultados_medicos(paciente_id):
     try:
         conn = conectar_db()
@@ -64,6 +65,8 @@ def obtener_resultados_medicos(paciente_id):
         print(f"❌ Error al consultar resultados: {e}")
         return []
 
+
+# Obtener datos del paciente
 def obtener_datos_paciente(paciente_id):
     """
     Retorna el nombre y correo del paciente dado su ID.
@@ -94,7 +97,7 @@ def obtener_datos_paciente(paciente_id):
         cur.close()
         conn.close()
 
-
+#Obtener ID del paciente a partir del correo
 def obtener_id_correo(correo: str):
     """
     Retorna el ID del paciente dado su correo.

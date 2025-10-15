@@ -5,7 +5,7 @@ from modelo.citas_model import generar_reporte_citas, consultar_resultados_medic
 router = APIRouter(prefix="/citas", tags=["citas"])
 
 # ============================
-# 📘 MODELO DE ENTRADA (Pydantic)
+# MODELO DE ENTRADA (Pydantic)
 # ============================
 class CitaRequest(BaseModel):
     correo: str
@@ -15,7 +15,7 @@ class CitaRequest(BaseModel):
 
 
 # ============================
-# 🩺 ENDPOINT: Agendar Cita
+# ENDPOINT: Agendar Cita
 # ============================
 @router.post("/agendar")
 async def agendar_cita_endpoint(cita: CitaRequest):
@@ -34,6 +34,9 @@ async def agendar_cita_endpoint(cita: CitaRequest):
         raise HTTPException(status_code=400, detail=str(e))
     
 
+# ============================
+# ENDPOINT: Obtener resultados
+# ===========================
 @router.get("/resultados/{correo}")
 def get_resultados_medicos(correo: str):
     """
