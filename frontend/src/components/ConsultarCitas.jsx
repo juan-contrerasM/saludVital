@@ -13,7 +13,7 @@ function ConsultarCitas({ citas }) {
 
   return (
     <div style={{ marginTop: 40 }}>
-      <h2>Citas agendadas</h2>
+      <h2>Resultados Médicos</h2>
 
       {citasValidas.length === 0 ? (
         <p>No hay citas disponibles o ocurrió un error.</p>
