@@ -6,19 +6,16 @@ app = FastAPI()
 
 # Orígenes permitidos
 origins = [
-    "http://localhost:3000",  # frontend dev
-    "http://127.0.0.1:3000",
-     "http://18.222.102.240::5173"# otro posible host local
-    # puedes poner "*" en desarrollo, pero no en producción
+    "http://localhost:3000",          # frontend local dev
+    "http://127.0.0.1:3000",          # frontend local dev
+    "http://18.222.102.240:5173",     # frontend en EC2
+    "https://saludvital.vercel.app"   # dominio futuro
 ]
 
 # CORS para permitir peticiones desde React
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://18.222.102.240:",  # Frontend en EC2
-        "https://saludvital.vercel.app",  # Ejemplo dominio futuro
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
