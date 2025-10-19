@@ -9,12 +9,12 @@ function ConsultarCitas({ citas }) {
     const d = new Date(f);
     if (isNaN(d.getTime())) return f;
     return d.toLocaleString("es-CO", { timeZone: "America/Bogota" });
-    // Ajusta si quieres solo fecha/hora por separado
   };
 
   return (
     <div style={{ marginTop: 40 }}>
       <h2>Citas agendadas</h2>
+
       {citasValidas.length === 0 ? (
         <p>No hay citas disponibles o ocurrió un error.</p>
       ) : (
@@ -24,36 +24,36 @@ function ConsultarCitas({ citas }) {
             borderCollapse: "collapse",
             width: "90%",
             maxWidth: 900,
+            textAlign: "left",
+            fontSize: "15px",
+            border: "1px solid #ddd",
           }}
         >
-          <thead>
-            <tr style={{ borderBottom: "1px solid #ddd" }}>
-              <th style={{ textAlign: "left", padding: 8 }}>Fecha</th>
-              <th style={{ textAlign: "left", padding: 8 }}>Tipo</th>
-              <th style={{ textAlign: "left", padding: 8 }}>Descripción</th>
+          <thead style={{ backgroundColor: "#f5f5f5" }}>
+            <tr>
+              <th style={{ padding: "10px 8px", borderBottom: "2px solid #ccc" }}>Fecha</th>
+              <th style={{ padding: "10px 8px", borderBottom: "2px solid #ccc" }}>Tipo</th>
+              <th style={{ padding: "10px 8px", borderBottom: "2px solid #ccc" }}>Descripción</th>
             </tr>
           </thead>
+
           <tbody>
             {citasValidas.map((cita, i) => {
               const fecha = cita.fecha || cita.fecha_resultado || "";
               const tipo = cita.tipo || cita.tipo_examen || "-";
               const descripcion = cita.descripcion || cita.resultado || "-";
-              const url = cita.url || cita.enlace || null;
 
               return (
-                <tr key={i} style={{ borderTop: "1px solid #eee" }}>
+                <tr
+                  key={i}
+                  style={{
+                    borderBottom: "1px solid #eee",
+                    backgroundColor: i % 2 === 0 ? "#fff" : "#fafafa",
+                  }}
+                >
                   <td style={{ padding: 8 }}>{formatearFecha(fecha)}</td>
                   <td style={{ padding: 8 }}>{tipo}</td>
                   <td style={{ padding: 8 }}>{descripcion}</td>
-                  <td style={{ padding: 8 }}>
-                    {url ? (
-                      <a href={url} target="_blank" rel="noreferrer">
-                        Ver
-                      </a>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
                 </tr>
               );
             })}
