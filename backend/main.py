@@ -8,7 +8,7 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",  # frontend dev
     "http://127.0.0.1:3000",
-     "http://54.90.87.198:5173"# otro posible host local
+     "http://18.222.102.240::5173"# otro posible host local
     # puedes poner "*" en desarrollo, pero no en producción
 ]
 
@@ -16,7 +16,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://54.90.87.198:5173",  # Frontend en EC2
+        "http://18.222.102.240:",  # Frontend en EC2
         "https://saludvital.vercel.app",  # Ejemplo dominio futuro
     ],
     allow_credentials=True,
