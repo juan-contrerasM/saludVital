@@ -2,9 +2,22 @@ import React, { useState } from "react";
 import AgendarCita from "./components/AgendarCitas";
 import ConsultarCitas from "./components/ConsultarCitas";
 
-// CRA: REACT_APP_BACKEND_URL=http://54.90.87.198:8000  (o tu URL)
-// Quita slash final si lo tiene
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
+
+async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    data = { rawText: await res.text() };
+  }
+  return { res, data };
+}
 
 function App() {
   const [email, setEmail] = useState("");
@@ -12,23 +25,19 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   const cargarCitas = async () => {
-    if (!email) {
-      alert("Ingresa un correo válido");
-      return;
-    }
+    if (!email) return alert("Ingresa un correo válido");
     try {
       setLoading(true);
-      const res = await fetch(`${BACKEND_URL}/citas/resultados/${email}`);
-      const data = await res.json();
-
+      const r = await fetch(`${BACKEND_URL}/citas/resultados/${email}`);
+      const data = await r.json();
       if (data.status === "ok" && Array.isArray(data.resultados)) {
         setCitas(data.resultados);
       } else {
         setCitas([]);
         if (data.mensaje) alert(data.mensaje);
       }
-    } catch (error) {
-      console.error("Error cargando citas:", error);
+    } catch (e) {
+      console.error("Error cargando citas:", e);
       alert("⚠️ Error al cargar las citas.");
     } finally {
       setLoading(false);
@@ -36,56 +45,38 @@ function App() {
   };
 
   const agregarCita = async (nuevaCita) => {
-    if (!email) {
-      alert("Primero ingresa el correo del paciente.");
-      return;
-    }
-
+    if (!email) return alert("Primero ingresa el correo del paciente.");
     try {
-      // Asegurar formato HH:MM:SS para el backend
       const hora = /^\d{2}:\d{2}$/.test(nuevaCita.hora)
         ? `${nuevaCita.hora}:00`
         : nuevaCita.hora;
 
-      const body = {
-        paciente_id: email,        // <- EXIGIDO por tu backend
-        fecha: nuevaCita.fecha,    // 'YYYY-MM-DD' (input date)
-        hora,                      // 'HH:MM:SS' (normalizado arriba)
+      const bodyPlano = {
+        paciente_id: email,
+        fecha: nuevaCita.fecha,
+        hora,
         motivo: nuevaCita.motivo,
       };
 
-      console.log("[DEBUG] Body que envío a /citas/agendar:", body);
+      console.log("[DEBUG] Body plano -> /citas/agendar:", bodyPlano);
+      let { res, data } = await postJSON(`${BACKEND_URL}/citas/agendar`, bodyPlano);
 
-      const res = await fetch(`${BACKEND_URL}/citas/agendar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      // Intenta parsear el JSON siempre, incluso en error
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        data = { rawText: await res.text() };
+      // Si el back pide body embebido (cita: {...}), reintenta una vez
+      if (res.status === 422) {
+        console.warn("[DEBUG] 422 con body plano. detail:", data.detail || data);
+        const bodyEmbebido = { cita: bodyPlano };
+        console.log("[DEBUG] Reintentando con body embebido:", bodyEmbebido);
+        ({ res, data } = await postJSON(`${BACKEND_URL}/citas/agendar`, bodyEmbebido));
       }
 
       if (!res.ok) {
-        // Si es 422, mostrar exactamente el campo faltante
-        if (res.status === 422 && data && Array.isArray(data.detail)) {
-          const faltantes = data.detail
-            .map((d) => (Array.isArray(d.loc) ? d.loc.join(".") : d.msg || "Campo faltante"))
-            .join(" | ");
-          console.error("Validación 422:", data);
-          alert(`❌ Validación (422). Revisa campos: ${faltantes}`);
-        } else {
-          console.error("Error HTTP:", res.status, data);
-          alert(`❌ Error al agendar cita (HTTP ${res.status}).`);
-        }
+        console.error(`Error HTTP ${res.status}`, data);
+        const detalle = data.detail ? JSON.stringify(data.detail, null, 2) : JSON.stringify(data);
+        alert(`❌ Error al agendar (HTTP ${res.status}).\n${detalle}`);
         return;
       }
 
-      console.log("Respuesta:", data);
+      console.log("Respuesta agendar:", data);
 
       if (data.Exitoso) {
         alert("✅ Cita agendada con éxito.");
@@ -94,10 +85,10 @@ function App() {
         alert("❌ " + (Array.isArray(data.Error) ? data.Error.join("\n") : String(data.Error)));
       } else {
         alert("❌ Respuesta inesperada del servidor.");
-        console.log("Respuesta inesperada:", data);
+        console.log("Respuesta:", data);
       }
-    } catch (error) {
-      console.error("Error al agendar cita:", error);
+    } catch (e) {
+      console.error("Error al agendar cita:", e);
       alert("❌ No se pudo agendar la cita.");
     }
   };
@@ -106,7 +97,6 @@ function App() {
     <div style={{ textAlign: "center", fontFamily: "sans-serif", padding: 20 }}>
       <h1>VitalApp 🏥</h1>
 
-      {/* correo = paciente_id */}
       <div style={{ marginBottom: 20 }}>
         <input
           type="email"
