@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AgendarCita from "./components/AgendarCita";
+import AgendarCita from "./components/AgendarCitas";
 import ConsultarCitas from "./components/ConsultarCitas";
 
 // CRA: REACT_APP_BACKEND_URL=http://54.90.87.198:8000  (o tu URL)
