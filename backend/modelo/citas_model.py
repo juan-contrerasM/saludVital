@@ -1,5 +1,5 @@
 from datetime import datetime
-from db.citas_query import agendar_cita, obtener_resultados_medicos, obtener_datos_paciente
+from db.citas_query import agendar_cita, obtener_resultados_medicos, obtener_datos_paciente, obtener_id_correo
 from utils.correo import enviar_correo_agendamiento
 
 import re
@@ -8,7 +8,7 @@ from datetime import datetime
 def validar_datos_cita(paciente_id: str, fecha: str, hora: str, motivo: str):
     errores = []
 
-    # Validar paciente_id ghghghghghghghg
+    # Validar paciente_id
     if not paciente_id or not isinstance(paciente_id, str):
         errores.append("El ID del paciente es obligatorio y debe ser un texto válido.")
 
@@ -36,8 +36,9 @@ def validar_datos_cita(paciente_id: str, fecha: str, hora: str, motivo: str):
     return True, None
 
 
-
-def generar_reporte_citas(paciente_id: str, fecha: str, hora: str, motivo: str):
+#Generar reporte de citas
+def generar_reporte_citas(correo: str, fecha: str, hora: str, motivo: str):
+    paciente_id = obtener_id_correo(correo)
     valido, errores = validar_datos_cita(paciente_id, fecha, hora, motivo)
 
     if valido:
@@ -50,15 +51,18 @@ def generar_reporte_citas(paciente_id: str, fecha: str, hora: str, motivo: str):
     else:
         return {"Error": errores}
 
+# Validar ID del paciente
 def validar_paciente_id(paciente_id: str):
     if not paciente_id or not isinstance(paciente_id, str) or len(paciente_id.strip()) < 2:
         return False, "El ID del paciente es obligatorio y debe ser texto válido."
     return True, None
 
-def consultar_resultados_medicos(paciente_id: str):
+# Consultar resultados médicos
+def consultar_resultados_medicos(correo: str):
     """
     Valida el ID y consulta los resultados del paciente.
     """
+    paciente_id = obtener_id_correo(correo)
     valido, error = validar_paciente_id(paciente_id)
     if not valido:
         return {"status": "error", "mensaje": error}

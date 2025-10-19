@@ -23,16 +23,37 @@ jobs:
           cd backend
           pip install -r requirements.txt
 
+      - name: Lint Backend con flake8
+        run: |
+          cd backend
+          # --count muestra el número total de errores
+          # --select=E9,F63,F7,F82 --show-source --statistics muestra errores específicos + no usados
+          # --max-complexity=10 --max-line-length=127 ajusta límites (opcional)
+          # --ignore=... puedes añadir códigos de error a ignorar si es necesario
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Puedes ajustar los flags de flake8 según necesiten
+
       # === Etapa Frontend ===
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Construir frontend
+      - name: Instalar dependencias del frontend # Modificado para instalar todo
         run: |
           cd frontend
           npm install
+
+      - name: Lint Frontend con ESLint
+        run: |
+          cd frontend
+          # Ejecuta el script lint que create-react-app usualmente configura
+          # O puedes usar directamente: npx eslint . --ext .js,.jsx
+          npm run lint -- --no-fix # Añadimos --no-fix para que no intente arreglar, solo reporte
+
+      - name: Construir frontend
+        run: |
+          cd frontend
           npm run build
 
       # === Construcción Docker ===
