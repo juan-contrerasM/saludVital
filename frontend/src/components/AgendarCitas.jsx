@@ -12,6 +12,7 @@ function AgendarCita({ onAgendar }) {
       return;
     }
     onAgendar({ fecha, hora, motivo });
+    // Limpieza
     setFecha("");
     setHora("");
     setMotivo("");
@@ -32,7 +33,7 @@ function AgendarCita({ onAgendar }) {
           value={hora}
           onChange={(e) => setHora(e.target.value)}
           required
-          // Tu backend pide HH:MM:SS; App.js añade ':00' si faltan segundos
+          step="1" // permite seleccionar segundos si el navegador lo soporta
         />
         <input
           type="text"

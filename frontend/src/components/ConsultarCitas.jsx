@@ -4,14 +4,12 @@ function ConsultarCitas({ citas }) {
   const citasValidas = Array.isArray(citas) ? citas : [];
 
   const formatearFecha = (f) => {
-    // Si viene "YYYY-MM-DD" la dejamos tal cual; si viene ISO, intentamos formatear
     if (!f) return "-";
-    // Caso simple: ya es YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(f)) return f;
-    // Intento de formateo si es ISO u otro
     const d = new Date(f);
     if (isNaN(d.getTime())) return f;
     return d.toLocaleString("es-CO", { timeZone: "America/Bogota" });
+    // Ajusta si quieres solo fecha/hora por separado
   };
 
   return (
@@ -38,7 +36,6 @@ function ConsultarCitas({ citas }) {
           </thead>
           <tbody>
             {citasValidas.map((cita, i) => {
-              // Back puede devolver: { tipo, fecha, descripcion, url }
               const fecha = cita.fecha || cita.fecha_resultado || "";
               const tipo = cita.tipo || cita.tipo_examen || "-";
               const descripcion = cita.descripcion || cita.resultado || "-";
