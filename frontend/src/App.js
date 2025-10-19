@@ -1,76 +1,87 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AgendarCita from "./components/AgendarCitas";
 import ConsultarCitas from "./components/ConsultarCitas";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/+$/, "");
 
 function App() {
+  const [email, setEmail] = useState("");
   const [citas, setCitas] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const pacienteId = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID de prueba o simulado
-
-    fetch(`${BACKEND_URL}/citas/resultados/${pacienteId}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          const errorMsg = await res.text();
-          throw new Error(`Error ${res.status}: ${errorMsg}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data.status === "ok" && Array.isArray(data.resultados)) {
-          setCitas(data.resultados);
-        } else {
-          console.error("Respuesta inesperada del backend:", data);
-          setCitas([]);
-        }
-      })
-      .catch((err) => {
-        console.error("Error cargando citas desde backend:", err);
-        alert("⚠️ Error cargando citas desde el servidor");
-      });
-  }, []);
-
-  // Enviar nueva cita al backend
-  const agregarCita = async (nuevaCita) => {
+  const cargarCitas = async () => {
+    if (!email) return alert("Ingresa un correo");
     try {
-      const pacienteId = "ed029278-59a5-4ea3-aa4c-439787707313"; // ID fijo
-      const body = { ...nuevaCita, paciente_id: pacienteId };
+      setLoading(true);
+      const res = await fetch(`${BACKEND_URL}/citas/resultados/${email}`);
+      const data = await res.json();
+      if (data.status === "ok" && Array.isArray(data.resultados)) {
+        setCitas(data.resultados);
+      } else {
+        setCitas([]);
+        if (data.mensaje) alert(data.mensaje);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error cargando citas");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const agregarCita = async (nuevaCita) => {
+    if (!email) return alert("Primero ingresa el correo del paciente");
+    try {
+      const hora = /^\d{2}:\d{2}$/.test(nuevaCita.hora)
+        ? `${nuevaCita.hora}:00`
+        : nuevaCita.hora;
+
+      const body = {
+        paciente_id: email,         
+        fecha: nuevaCita.fecha,
+        hora,                      
+        motivo: nuevaCita.motivo,
+      };
 
       const res = await fetch(`${BACKEND_URL}/citas/agendar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
-      if (!res.ok) throw new Error("Error al agendar cita");
-
       const data = await res.json();
 
       if (data.Exitoso) {
-        // Recargar resultados desde backend después de agendar
-        const resultadosRes = await fetch(`${BACKEND_URL}/citas/resultados/${pacienteId}`);
-        const resultadosData = await resultadosRes.json();
-        if (resultadosData.status === "ok" && Array.isArray(resultadosData.resultados)) {
-          setCitas(resultadosData.resultados);
-        }
-        alert("✅ Cita agendada con éxito.");
+        alert("✅ Cita agendada");
+        await cargarCitas();
+      } else if (data.Error) {
+        alert("❌ " + (Array.isArray(data.Error) ? data.Error.join("\n") : String(data.Error)));
       } else {
-        console.error("Error en la respuesta al agendar cita:", data);
-        alert("❌ No se pudo agendar la cita correctamente.");
+        alert("❌ Respuesta inesperada del servidor");
+        console.log("Respuesta:", data);
       }
-    } catch (error) {
-      console.error(error);
-      alert("❌ No se pudo agendar la cita.");
+    } catch (e) {
+      console.error(e);
+      alert("Error al agendar cita");
     }
   };
 
   return (
-    <div style={{ textAlign: "center", fontFamily: "sans-serif", padding: "20px" }}>
+    <div style={{ textAlign: "center", fontFamily: "sans-serif", padding: 20 }}>
       <h1>VitalApp 🏥</h1>
+
+      <div style={{ marginBottom: 20 }}>
+        <input
+          type="email"
+          placeholder="Correo del paciente"
+          value={email}
+          onChange={(e) => setEmail(e.target.value.trim())}
+          style={{ padding: 6, width: 280 }}
+        />
+        <button onClick={cargarCitas} style={{ marginLeft: 10 }}>Consultar citas</button>
+      </div>
+
       <AgendarCita onAgendar={agregarCita} />
-      <ConsultarCitas citas={citas} />
+      {loading ? <p>Cargando...</p> : <ConsultarCitas citas={citas} />}
     </div>
   );
 }
