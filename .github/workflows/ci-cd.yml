@@ -82,6 +82,8 @@ jobs:
 
             # Crear el archivo .env del backend (solo con la URL)
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > backend/.env
+            echo "EMAIL_SENDER=${{ secrets.EMAIL_SENDER }}" >> backend/.env
+            echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> backend/.env
 
             # Crear el .env del frontend con la URL del backend
             echo "REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }}" > frontend/.env
