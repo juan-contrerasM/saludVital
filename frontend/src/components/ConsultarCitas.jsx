@@ -31,7 +31,6 @@ function ConsultarCitas({ citas }) {
               <th style={{ textAlign: "left", padding: 8 }}>Fecha</th>
               <th style={{ textAlign: "left", padding: 8 }}>Tipo</th>
               <th style={{ textAlign: "left", padding: 8 }}>Descripción</th>
-              <th style={{ textAlign: "left", padding: 8 }}>Archivo</th>
             </tr>
           </thead>
           <tbody>
