@@ -47,12 +47,15 @@ function App() {
   const agregarCita = async (nuevaCita) => {
     if (!email) return alert("Primero ingresa el correo del paciente.");
     try {
+      // Asegurar formato HH:MM:SS
       const hora = /^\d{2}:\d{2}$/.test(nuevaCita.hora)
         ? `${nuevaCita.hora}:00`
         : nuevaCita.hora;
 
+      // 1) Body plano con ambos campos: paciente_id y correo
       const bodyPlano = {
-        paciente_id: email,
+        paciente_id: email,   // por si el back usa este nombre
+        correo: email,        // ← el server actual lo está pidiendo
         fecha: nuevaCita.fecha,
         hora,
         motivo: nuevaCita.motivo,
@@ -61,7 +64,7 @@ function App() {
       console.log("[DEBUG] Body plano -> /citas/agendar:", bodyPlano);
       let { res, data } = await postJSON(`${BACKEND_URL}/citas/agendar`, bodyPlano);
 
-      // Si el back pide body embebido (cita: {...}), reintenta una vez
+      // 2) Si 422, reintenta con body embebido: { cita: { ... } }
       if (res.status === 422) {
         console.warn("[DEBUG] 422 con body plano. detail:", data.detail || data);
         const bodyEmbebido = { cita: bodyPlano };
