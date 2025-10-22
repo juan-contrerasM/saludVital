@@ -43,3 +43,16 @@ def get_resultados_medicos(correo: str):
     Endpoint para consultar los resultados médicos de un paciente.
     """
     return consultar_resultados_medicos(correo)
+
+
+# ============================
+# ENDPOINT: Diagnóstico de instancia
+# ============================
+@router.get("/instancia")
+def verificar_instancia():
+    """
+    Endpoint de prueba para identificar la instancia (web1, web2, etc.)
+    """
+    import socket
+    nombre_host = socket.gethostname()
+    return {"instancia": nombre_host}
