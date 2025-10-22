@@ -9,7 +9,8 @@ origins = [
     "http://localhost:3000",          # frontend local dev
     "http://127.0.0.1:3000",          # frontend local dev
     "http://18.222.102.240:5173",     # frontend en EC2
-    "https://saludvital.vercel.app"   # dominio futuro
+    "https://saludvital.vercel.app",
+    "http://18.222.102.240:8080", # dominio futuro
 ]
 
 # CORS para permitir peticiones desde React
